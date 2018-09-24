@@ -1,22 +1,14 @@
 Exploratory Data Analysis of White Wine Quality by HINDHUJA GUTHA
 ==================================================================
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
-# Load all of the packages that you end up using in your analysis in this code
-# chunk.
-
-# Notice that the parameter "echo" was set to FALSE for this code chunk. This
-# prevents the code from displaying in the knitted HTML output. You should set
-# echo=FALSE for all code chunks in your file, unless it makes sense for your
-# report to show the code that generated a particular plot.
-
-# The other parameters for "message" and "warning" should also be set to FALSE
-# for other code chunks once you have verified that each plot comes out as you
-# want it to. This will clean up the flow of your report.
-
+```{r echo=FALSE, message=FALSE, warning=FALSE, packages_and_global_options}
+# Load packages used in this analysis
 library(ggplot2)
 library(gridExtra)
 library(ggthemes)
+knitr::opts_chunk$set(fig.width=8,fig.height=4,fig.path='Figs/',
+                      fig.align='center',tidy=TRUE,
+                      echo=FALSE,warning=FALSE,message=FALSE)
 ```
 
 ```{r echo=FALSE, Load_the_Data}
@@ -24,18 +16,18 @@ library(ggthemes)
 whiteWineData <- read.csv('wineQualityWhites.csv')
 ```
 
-># Introduction:
-> The dataset used in this EDA is related to white wine samples of the Portuguese "Vinho Verde" wine.For more details, consult: http://www.vinhoverde.pt/en/ or the reference [Cortez et al., 2009].
+# Introduction:
+ The dataset used in this EDA is related to white wine samples of the Portuguese "Vinho Verde" wine.For more details, consult: http://www.vinhoverde.pt/en/ or the reference [Cortez et al., 2009].
 
-> Due to privacy and logistic issues, only physicochemical (inputs) and sensory (the output) variables are available (e.g. there is no data about grape types, wine brand, wine selling price, etc.).
+ Due to privacy and logistic issues, only physicochemical (inputs) and sensory (the output) variables are available (e.g. there is no data about grape types, wine brand, wine selling price, etc.).
 
-> The inputs include objective tests (e.g. PH values) and the output is based on sensory data (median of at least 3 evaluations made by wine experts). Each expert graded the wine quality between 0 (very bad) and 10 (very excellent).
+ The inputs include objective tests (e.g. PH values) and the output is based on sensory data (median of at least 3 evaluations made by wine experts). Each expert graded the wine quality between 0 (very bad) and 10 (very excellent).
 
-> The classes are ordered and not balanced (e.g. there are munch more normal wines than excellent or poor ones). Outlier detection algorithms could be used to detect the few excellent or poor wines.
+ The classes are ordered and not balanced (e.g. there are munch more normal wines than excellent or poor ones). Outlier detection algorithms could be used to detect the few excellent or poor wines.
 
->  **Attribute Information :**
+**Attribute Information :**
 
->  **Input variables (based on physicochemical tests):**
+**Input variables (based on physicochemical tests):**
 
 * fixed acidity (tartaric acid - g / dm^3)
 * volatile acidity (acetic acid - g / dm^3)  
@@ -49,43 +41,47 @@ whiteWineData <- read.csv('wineQualityWhites.csv')
 * sulphates (potassium sulphate - g / dm3)
 * alcohol (% by volume)
 
->  **Output variable (based on sensory data):**
+**Output variable (based on sensory data):**
 
 * quality (score between 0 and 10)
 
 # Univariate Plots Section
 
-> In this section summary of all variables and information about dataset is 
+In this section summary of all variables and information about dataset is 
 analysed along with histograms for important variables and 
 if necessary new variables are created
 
-> ##White Wine Dataset Summary
+##White Wine Dataset Summary
 
-> **Null values in Dataset**
+**Null values in Dataset**
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE,check_null}
+#Check for null values in dataset
 sum(is.na(whiteWineData))
 ```
 
-> **row count**
+**row count**
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE,check_row_count}
+#Check row count
 nrow(whiteWineData)
 ```
 
-> **column count**
+**column count**
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE,check_column_count}
+#Check column count
 ncol(whiteWineData)
 ```
 
-> **Dataset Summary**
+**Dataset Summary**
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE,dataset_sumary}
+#Get summary of dataset
 summary(whiteWineData)
 ```
 
-> **Dataset Observations:**
+**Dataset Observations:**
 
 * Datset has 13 columns . X refers to the number of the sampled white wine.
 * Other columns are attributes for sample X
@@ -101,19 +97,24 @@ which suggests that samples in dataset has alcohol in required range.
 * None of the samples are rated very bad(score 0) or very excellent(score 10)
 * Maximum rated wine quality is 9. None of the sample is rated 10.
 
-> **idealpH categorical variable**
-> Based on the information 3-3.4 is best pH level for white wines, a categorical
-variable idealPh is created which takes value 'yes' when pH level is in between 3-3.4 
-otherwise the value will be 'no'
+**idealpH categorical variable**
+ 
+ Based on the information 3-3.4 is best pH level for white wines, a categorical
+variable idealPh is created which takes value 'Yes' when pH level is in between 3-3.4 
+otherwise the value will be 'No'
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE,create_ph_categorical_variable}
+#Create categorical variable idealpH with 2 Factor levels Yes/No
+#'Yes' for pH range from 3-3.4 otherwise 'No'
 whiteWineData$idealpH  <- factor(ifelse(whiteWineData$pH >= 3 & 
                                       whiteWineData$pH <= 3.4 , "Yes", "No"))
 
 ```
 
+
 ```{r echo=FALSE, message=FALSE, warning=FALSE,create_hist_function}
-# Create Function to print Univariate Plots
+# Create Function to print Univariate Plots with input args-> attribute name , 
+#x-axis lower limit ,x-axis Upper limit,binwidth(default 0.5),break(default 1) 
 univariatePlots <- function(curAttr,lowerL,upperL,bw = 0.5, brk = 1){
 qplot(whiteWineData[, c(curAttr)],  col=I("lightseagreen"),
           fill=I("lightblue"), binwidth = bw) +
@@ -122,99 +123,136 @@ scale_x_continuous(breaks = seq(lowerL,upperL,brk), lim = c(lowerL,upperL))+
 }
 ```
 
-> **Fixed Acidity Summary**
+**Fixed Acidity Summary**
 
 ```{r echo=FALSE,message=FALSE, warning=FALSE,fixed_acidity_summary}
+#Get Summary of variable fixed.acidity
 summary(whiteWineData$fixed.acidity)
 ```
 
-> **Fixed Acidity plot**
+**Fixed Acidity plot**
 
 ```{r echo=FALSE,message=FALSE, warning=FALSE,fixed_acidity_plot}
+#Histogram for fixed.acidity using function univariatePlots
 univariatePlots("fixed.acidity",3,15)
 ```
 
-> **Volatile Acidity Summary**
+* fixed.acidity is normally distributed
+* As fixed.acidity value increased from 6.75 there is a decrease in sample count
+
+**Volatile Acidity Summary**
 
 ```{r echo=FALSE,message=FALSE, warning=FALSE,volatile_acidity_summary}
+#Get Summary of variable volatile.acidity
 summary(whiteWineData$volatile.acidity)
 ```
 
-> **Volatile Acidity  plot**
+**Volatile Acidity  plot**
 
 ```{r echo=FALSE,message=FALSE, warning=FALSE,volatile_acidity_plot}
+#Histogram for volatile.acidity using function univariatePlots
 univariatePlots("volatile.acidity",0.08,1.10,0.04,0.1)
 ```
 
-> **Citric Acid Summary**
+* Volatile acidity has some outliers and ditribution is slightly right skewed
+* majority samples have volatile acidity below 0.4
+
+**Citric Acid Summary**
 
 ```{r echo=FALSE,message=FALSE, warning=FALSE,citric_acid_summary}
+#Get Summary of variable citric.acid
 summary(whiteWineData$citric.acid)
 ```
 
-> **Citric Acid  plot**
+**Citric Acid  plot**
 
 ```{r echo=FALSE,message=FALSE, warning=FALSE,citric_acid_plot}
+#Histogram for citric.acid using function univariatePlots
 univariatePlots("citric.acid",0.00,1.68,0.05,0.4)
 ```
 
-> **Residual Sugar Summary**
+* citric.acid has some major outliers and distribution is normal
+
+**Residual Sugar Summary**
 
 ```{r echo=FALSE,message=FALSE, warning=FALSE,residual_sugar_summary}
+#Get Summary of variable residual.sugar
 summary(whiteWineData$residual.sugar)
 ```
 
-> **Residual Sugar plot**
+**Residual Sugar plot**
 
 ```{r echo=FALSE,message=FALSE, warning=FALSE,residual_sugar_plot}
+#Histogram for residual.sugar using function univariatePlots
 univariatePlots("residual.sugar",0,66,3,5)
 ```
 
-> **Total sulfur dioxide Summary**
+* Distribution of residual sugar is right skewed
+* There seems to be a negative association between count and residual sugar
+* As residual.sugar value increased , there is decrease in sample count, which
+means majority samples have less residual sugar.
+
+**Total sulfur dioxide Summary**
 
 ```{r echo=FALSE,message=FALSE, warning=FALSE,total_sulfur_dioxide_summary}
+#Get Summary of variable total.sulfur.dioxide
 summary(whiteWineData$total.sulfur.dioxide)
 ```
 
-> **Total Sulfur dioxide  plot**
+**Total Sulfur dioxide  plot**
 
 ```{r echo=FALSE,message=FALSE, warning=FALSE,total_sulfur_dioxide_plot}
+#Histogram for total.sulfur.dioxide using function univariatePlots
 univariatePlots("total.sulfur.dioxide",0,450,15,30)
 ```
 
-> **Density Summary**
+* Total sulfur dioxide is normally distributed but there are some outliers
+* Majority samples have total sulfur dioxide below 200
+
+**Density Summary**
 
 ```{r echo=FALSE,message=FALSE, warning=FALSE,density_summary}
+#Get Summary of variable density
 summary(whiteWineData$density)
 ```
 
-> **Density plot**
+**Density plot**
 
 ```{r echo=FALSE,message=FALSE, warning=FALSE,density_plot}
+#Histogram for density using function univariatePlots
 univariatePlots("density",0.98,1.04,0.002,0.01)
 ```
 
-> **pH Summary**
+* density is normally distributed with some major outliers
+
+**pH Summary**
 
 ```{r echo=FALSE,message=FALSE, warning=FALSE,pH_summary}
+#Get Summary of variable pH
 summary(whiteWineData$pH)
 ```
 
-> **pH plot**
+**pH plot**
 
 ```{r echo=FALSE,message=FALSE, warning=FALSE,pH_plot}
+#Histogram for pH using function univariatePlots
 univariatePlots("pH",2.7,3.9,0.04,0.1)
 ```
 
-> **IdealpH category variable (3-3.4pH value) Summary**
+* pH range is normally distributed 
+* 3 to 3.3 seems to be popular pH range
+
+**IdealpH category variable (3-3.4pH value) Summary**
 
 ```{r echo=FALSE,message=FALSE, warning=FALSE,idealPH_summary}
+#Get Summary of variable idealpH
 summary(whiteWineData$idealpH)
 ```
 
-> **Bar plot for idealPH variable**
+**Bar plot for idealPH variable**
 
 ```{r echo=FALSE,message=FALSE, warning=FALSE,idealPH_plot}
+#Create bar plot for idealpH variable
 ggplot(data=whiteWineData, 
   aes(x=idealpH, col=I("lightseagreen"), fill=I("lightblue"))) + 
 geom_bar(aes(y = (..count..)*100/sum(..count..)))+
@@ -222,81 +260,95 @@ labs(title=paste("Bar plot for Ideal pH"), x="idealpH", y="Total Percentage(%)")
 
 ```
 
-> **Sulphates Summary**
+* More than 80% samples are in idealPH range
+
+**Sulphates Summary**
 
 ```{r echo=FALSE,message=FALSE, warning=FALSE,sulphates_summary}
+#Get Summary of variable sulphates
 summary(whiteWineData$sulphates)
 ```
 
-> **Sulphates  plot**
+**Sulphates  plot**
 
 ```{r echo=FALSE,message=FALSE, warning=FALSE,sulphates_plot}
+#Histogram for sulphates using function univariatePlots
 univariatePlots("sulphates",0.2,1.2,0.05,0.1)
 ```
 
-> **Alcohol(% by volume) Summary**
+* Sulphates distribution seems to be right skewed
+
+**Alcohol(% by volume) Summary**
 
 ```{r echo=FALSE,message=FALSE, warning=FALSE,alcohol_summary}
+#Get Summary of variable alcohol
 summary(whiteWineData$alcohol)
 ```
 
-> **Alcohol(% by volume) plot**
+**Alcohol(% by volume) plot**
 
 ```{r echo=FALSE,message=FALSE, warning=FALSE,alcohol_plot}
+#Histogram for alcohol using function univariatePlots
 univariatePlots("alcohol",8,15,0.2)
 ```
 
-> **Quality Summary**
+* Distribution for Alcohol is little bit right skewed
+
+**Quality Summary**
 
 ```{r echo=FALSE,message=FALSE, warning=FALSE,quality_summary}
+#Get Summary of variable quality
 summary(whiteWineData$quality)
 ```
 
-> **Quality plot**
+**Quality plot**
 
 ```{r echo=FALSE,message=FALSE, warning=FALSE,quality_plot}
-univariatePlots("quality",0,10)
+#Histogram for quality using function univariatePlots
+univariatePlots("quality",0,10,1,1)
 ```
 
+* Distribution of quality levels is left skewed 
+* Majority samples have quality levels 5,6 & 7
 
 # Univariate Analysis
 
->  **Number of Instances in white wine Dataset :** 4898. 
+**Number of Instances in white wine Dataset :** 4898. 
 
->  **Number of Attributes:** Total 13 columns,column "X" to represent sample &
-> remaining 12 columns represent sample attributes
+**Number of Attributes:** Total 13 columns,column "X" to represent sample &
+ remaining 12 columns represent sample attributes
 
->  **Missing Attribute Values:** None
+**Missing Attribute Values:** None
 
 ### What is the structure of your dataset?
-> dataset is tidy and there are no missing values . 
+dataset is tidy and there are no missing values . 
 
 ### What is/are the main feature(s) of interest in your dataset?
-> residual sugar, alcohol,pH and fixed.acidity are main attributes
+residual sugar, alcohol,pH and fixed.acidity are main attributes
 
 ### What other features in the dataset do you think will help support your \
 investigation into your feature(s) of interest?
-> quality,sulphates and density can help in understanding more about wine
+quality,sulphates and density can help in understanding more about wine
 
 ### Did you create any new variables from existing variables in the dataset?
-> I have created idealpH category variable based on ideal pH range 3-3.4
+I have created idealpH category variable based on ideal pH range 3-3.4
 
 ### Of the features you investigated, were there any unusual distributions? \
 Did you perform any operations on the data to tidy, adjust, or change the form \
 of the data? If so, why did you do this?
-> * Most of the individual variables are normally distributed.
-> * Residual sugar distribution is skewed.
-> * fixed.acidity,volatile.acidity,citric.acid,total.sulfur.dioxide,density and 
+* Most of the individual variables are normally distributed.
+* Residual sugar distribution is skewed.
+* fixed.acidity,volatile.acidity,citric.acid,total.sulfur.dioxide,density and 
 residual.sugar has some outliers
-> * More than 80% of samples are in ideal pH range
-> * All levels of quality are not present
+* More than 80% of samples are in ideal pH range
+* All levels of quality are not present
  
 # Bivariate Plots Section
 
-> Based on above individual variable analysis ,in this section 
+ Based on above individual variable analysis ,in this section 
 Bivariate Analysis is done to show comparisons and trends between two varaibles
-> Scatterplot is a good way to analyze bivariate relationshhip , It is used.
->Plots are analysed for below pairs
+ Scatterplot is a good way to analyze bivariate relationshhip , It is used.
+Plots are analysed for below pairs
 
 * fixed.acidity vs pH
 * sulphates vs pH
@@ -308,24 +360,37 @@ Bivariate Analysis is done to show comparisons and trends between two varaibles
 * idealPh vs quality
 
 ```{r echo=FALSE,message=FALSE, warning=FALSE,fixed.acidity_and_pH}
+#scatter plot for Fixed acidity vs pH 
 ggplot(whiteWineData,aes(x = pH, y = fixed.acidity))+
 geom_point() +
 geom_jitter()+geom_smooth(stat = 'smooth', color = 'seagreen', method = 'gam',
 formula = y ~ s(x, bs = "cs"))+labs(x = "pH value", y = "Fixed Acidity Value",
-  title = "Fixed acidity vs pH value")+
+  title = "Fixed acidity vs pH")+
   theme_economist() + scale_color_economist()
 ```
 
+* negative association between fixed acidity and pH value though it is not a
+non-linear correlation.
+* Increase in fixed acidity decreased pH value which suggests that fixed.acidity
+contributes majorly to the overall pH of the sample
+
 ```{r echo=FALSE,message=FALSE, warning=FALSE,sulphates_and_pH}
+#scatter plot for Sulphates vs pH
 ggplot(whiteWineData,aes(x = pH, y = sulphates))+
 geom_point() +
 geom_jitter()+geom_smooth(stat = 'smooth', color = 'seagreen', method = 'gam',
 formula = y ~ s(x, bs = "cs"))+labs(x = "pH value", y = "Sulphates value",
-  title = "Sulphates vs pH value")+
+  title = "Sulphates vs pH")+
   theme_economist() + scale_color_economist()
 ```
 
+* postivie association between sulphates value and pH value though it is not a
+linear correlation.
+* Increase in sulphates value increased pH value which mean sulphates is one of 
+the major attributes in deciding the overall pH of the sample
+
 ```{r echo=FALSE,message=FALSE, warning=FALSE,sulphates_and_fixed_acidity}
+#scatter plot for Fixed acidity vs Sulphates
 ggplot(whiteWineData,aes(x = fixed.acidity, y = sulphates))+
 geom_point() +
 geom_jitter()+geom_smooth(stat = 'smooth', color = 'seagreen', method = 'gam',
@@ -334,168 +399,236 @@ y = "Sulphates value",title = "Fixed Acidity vs Sulphates")+
 theme_economist() + scale_color_economist()
 ```
 
+* From above plot,No association can be seen between fixed.acidity and sulphates
+,Further analysis needs to be done to decide association
+* Very few samples have fixed acidity above 9 
+* similarly there are few samples with sulphates value above 0.8
+
 ```{r echo=FALSE,message=FALSE, warning=FALSE,so2_and_quality}
-ggplot(whiteWineData,aes(x = quality, y = total.sulfur.dioxide))+
+#scatter plot for Total sulfur dioxide vs Quality
+ggplot(whiteWineData,aes(x = as.factor(quality), y = total.sulfur.dioxide))+
 geom_point() +
 geom_jitter()+labs(x = "Quality",
 y = "Total Sulfur dioxide",title = "Total Sulfur dioxide vs Quality")+
-theme_economist() + scale_color_economist()
+theme_economist() 
 ```
+
+* Majority wine samples have total sulfur dioxide above 11.
+* Quality levels 5,6 & 7 seems to have more samples
+
 
 ```{r echo=FALSE,message=FALSE, warning=FALSE,sugar_and_alcohol}
+#scatter plot for Residual Sugar vs Alcohol
 ggplot(whiteWineData,aes(x = alcohol, y = residual.sugar))+
 geom_point() +
-geom_jitter()+geom_smooth(stat = 'smooth', color = 'seagreen', method = 'gam',
+geom_jitter()+geom_smooth(stat = 'smooth', color = 'green', method = 'gam',
 formula = y ~ s(x, bs = "cs"))+labs(x = "Alcohol (% by Volume)",
 y = "Residual sugar(grams)",title = "Residual Sugar vs Alcohol")+
-theme_economist() + scale_color_economist()
+  scale_color_brewer( name="Alcohol")+
+theme_bw()
 ```
+
+* There is negative association between residual sugar and alcohol %
+* As sugar level decreased there is an increase in alcohol % and also decrease 
+in sample count
 
 ```{r echo=FALSE,message=FALSE, warning=FALSE,residual_sugar_and_quality}
-ggplot(whiteWineData,aes(x = quality, y = residual.sugar))+
+#scatter plot for Residual Sugar vs Quality 
+ggplot(whiteWineData,aes(x = as.factor(quality), y = residual.sugar,
+                         color=as.factor(quality)))+
 geom_point() +geom_jitter()+labs(x = "Quality(0-10)",
 y = "Residual sugar(grams)",title = "Residual Sugar vs Quality")+
-theme_economist() + scale_color_economist()
+    scale_color_brewer( name="Quality levels")+
+theme_bw()
 ```
+
+* There seems to be a decrease in sample count when residual.sugar is increased
+* Majority samples have residual.sugar value below 20
+* from quality level 5 , as quality level increased there is decrease in overall
+sample count
+* There is no direct association between residual sugar and quality
 
 ```{r echo=FALSE,message=FALSE, warning=FALSE,alcohol_and_quality}
-ggplot(whiteWineData,aes(x = quality, y = alcohol))+
+#scatter plot for Alcohol vs Quality 
+ggplot(whiteWineData,aes(x = as.factor(quality), y = alcohol,
+                         color=as.factor(quality)))+
 geom_point() +geom_jitter()+labs(x = "Quality(0-10)",
   y = "Alcohol(% by Volume)",title = "Alcohol vs Quality")+
-theme_economist() + scale_color_economist()
+  scale_color_brewer( name="Quality levels")+
+theme_bw()
 ```
 
+* Quality levels 5,6, & 7 have more samples
+* Majority samples have alcohol level above 11%
+ 
 ```{r echo=FALSE,message=FALSE, warning=FALSE,idealph_quality}
-ggplot(whiteWineData,aes(x = idealpH, y = quality))+
+#scatter plot for ideal pH vs Quality
+ggplot(whiteWineData,aes(x = idealpH, y = as.factor(quality),
+                color=idealpH))+
 geom_point() +
 geom_jitter()+labs(x = "Ideal pH value for white wine",y = "Quality(0-10)",
-    title = "Ideal pH vs Quality")+
-theme_economist() + scale_color_economist()
+    title = "Ideal pH vs Quality")
+
 ```
+
+* Quality depends on ideal pH range 3-3.4, as samples in ideal pH range have 
+more count compared to samples which are not in ideal Ph range.
+* This can be seen at all quality levels in above plot
 
 # Bivariate Analysis
 
 ### Talk about some of the relationships you observed in this part of the \
 investigation. How did the feature(s) of interest vary with other features in \
 the dataset?
-> * Negative association between fixed.acidity and pH value
-> * Positive association between sulphate and pH value
-> * Trend increased and decreased multiple times for fixed.acidity and sulphates
-> * Most of the sample shave residual sugar below 20 grams with some outliers
-> * Alochol and quality seems to have a postive correlation 
-> * Majority samples have alcohol level above 10 % and are in ideal pH range
+* Negative association between fixed.acidity and pH value
+* Positive association between sulphate and pH value
+* Trend increased and decreased multiple times for fixed.acidity and sulphates
+* Most of the sample shave residual sugar below 20 grams with some outliers
+* Alochol and quality seems to have a postive correlation 
+* Majority samples have alcohol level above 10 % and are in ideal pH range
 
 ### Did you observe any interesting relationships between the other features \
 (not the main feature(s) of interest)?
 
-> * Total sulfur dioxide is used to determine freshness of wine and
+* Total sulfur dioxide is used to determine freshness of wine and
 majority samples have total sulfur dioxide above 100 which suggests that 
 most wine samples are not aged well.
 
 ### What was the strongest relationship you found?
 
-> * strongest relationship is found between fixed.acidity vs pH & sulphate vs pH
+* strongest relationship is found between fixed.acidity vs pH & sulphate vs pH
 
 # Multivariate Plots Section
 
-> In this section association between multiple variables is explored.
-> Based on Bivariate plots Analysis below variables are analyzed together.
+ In this section association between multiple variables is explored.
+Based on Bivariate plots Analysis below variables are analyzed together.
 
 * fixed.acidity,sulphates and pH value
 * residual.sugar,alcohol and quality
 
-> **Relationship between Fixed Acidity , Sulphates and pH value**
+ **Relationship between Fixed Acidity , Sulphates and pH value**
 
 ```{r echo=FALSE,message=FALSE, warning=FALSE,acidity_sulphates_and_pH}
-ggplot(whiteWineData,aes(x = sulphates, y = fixed.acidity ,color= pH))+
-geom_point(size = 4, shape = 1, colour = "lightsteelblue")+ 
-  geom_jitter()+labs(x = "Sulfates")+theme_bw()
+#Scatter plot for Fixed Acidity , Sulphates and pH value
+ggplot(whiteWineData,aes(x = sulphates, y = fixed.acidity ,
+                         color= pH))+
+geom_point(alpha=0.5, size = 1, shape = 1)+ 
+  geom_jitter()+labs(x = expression(Sulphates~(g/dm^{3})) ,
+                   y = expression(Fixed~Acidity~(g/dm^{3})),
+      title = "Relationship between Fixed Acidity ,Sulphates & pH")+theme_bw()+
+scale_color_gradient(low = "green", high = "red")
 ```
 
-> **Relationship between Alcohol , Residual sugar and Quality**
+* From above plot we can deduct that as sulphate value increased there is a 
+slight increase in pH value
+* Also, when fixed.acidity is increased there is a decrease in pH value
+* There seems to be negative association between fixed.acidity and pH
+* Majority samples have fixed acidity above 6 and sulphates less than 0.6
+
+
+**Relationship between Alcohol , Residual sugar and Quality**
 
 ```{r echo=FALSE,message=FALSE, warning=FALSE,alcohol_sugar_and_quality}
-ggplot(whiteWineData,aes(x = alcohol, y = residual.sugar ,color= quality))+
-geom_point(size = 4, shape = 1, colour = "lightseagreen")+ 
-  geom_jitter()+labs(x = "alcohol")+theme_bw()
+#Scatter plot for Alcohol , Residual sugar and Quality
+ggplot(whiteWineData,aes(x = alcohol, y = residual.sugar ,
+                         color= as.factor(quality)))+
+geom_point(alpha=0.5, size = 1, shape = 1)+ 
+geom_jitter()+labs(x = "Alcohol (% by Volume)",
+                   y = expression(Residual~Sugar~(g/dm^{3})))+theme_bw()+
+scale_color_brewer(type = "div", palette = "RdYlGn", name="Quality", 
+direction=1) +guides(color=guide_legend(override.aes = list(alpha = 1)))
 ```
 
+* From above plot we can confirm that alcohol % also contributes to the quality.
+* Samples with alcohol % above 11 have higher levels of quality and vice versa
+* Majority samples have residual.sugar level below 10 
+* AS residual.sugar increased higher quality levels are decreased  which 
+suggests residual.sugar effects quality to some extent
+ 
 # Multivariate Analysis
 
 ### Talk about some of the relationships you observed in this part of the \
 investigation. Were there features that strengthened each other in terms of \
 looking at your feature(s) of interest?
 
-> * Majority samples have fixed.acidity above 6 .
-> * Distribution of pH values w.r.t fixed.acidity & sulfates is normal and
+* Majority samples have fixed.acidity above 6 .
+* Distribution of pH values w.r.t fixed.acidity & sulfates is normal and
  there are some outliers. This is further strengthened by Bivariate analysis 
  between pH & sulphates , pH & fixed.acidity
 
 ### Were there any interesting or surprising interactions between features?
 
-> lower pH values are present when fixed.acidity is more 
-> higher pH values are present when fixed.acidity value is less
-> Higher quality samples are seen when alcohol is in between 8.5-10%
-------
+* There is inverse correlation between fixed.acidity and pH value
+* Higher quality samples are seen when alcohol is above 11%
 
 # Final Plots and Summary
-> Below are 3 plots with most interesting findings
+
+Below are 3 plots with most interesting findings
 
 ### Plot One
 ```{r echo=FALSE, Plot_One}
+#Plot one : Bar plot for Ideal pH
 ggplot(data=whiteWineData, 
-  aes(x=idealpH, col=I("lightseagreen"), fill=I("lightblue"))) + 
+  aes(x=idealpH,fill=idealpH)) + 
 geom_bar(aes(y = (..count..)*100/sum(..count..)))+
 labs(title=paste("Bar plot for Ideal pH"), x="Ideal pH(Yes/No)", y="Total Percentage(%)")
 
 ```
 
 ### Description One
-> Ideal pH range of white wine is in between 3-3.4. From above plot we can see 
+
+ Ideal pH range of white wine is in between 3-3.4. From above plot we can see 
 that more than 80% samples are in ideal pH range.
 
 ### Plot Two
 ```{r echo=FALSE, Plot_Two}
-ggplot(whiteWineData,aes(x = idealpH, y = quality))+
-geom_point() +
-geom_jitter()+labs(x = "Ideal pH value for white wine(Yes/No)",
-y = "Quality(0-10)", title = "Ideal pH vs Quality")
+#Plot two : Scatter plot of Ideal pH and Quality
+ggplot(whiteWineData,aes(x = idealpH,y = as.factor(quality),color=idealpH))+
+geom_point()+geom_jitter()+labs(x = "Ideal pH value for white wine(Yes/No)",
+y = "Quality(0-10)",title="Ideal pH vs Quality")
 ```
 
 ### Description Two
-> From plot 1 and 2 we can confirm that majority samples with ideal pH range are
-have quality levels in between 5 to 7 . 
-> quality has some positive association with ideal Ph value
+
+* From above plot we can confirm that majority samples with ideal pH range have
+ quality levels in between 5,6 and 7 compared to samples not having ideal pH
+* quality has some positive association with ideal Ph value, which strengthens 
+that ideal pH range is 3-3.4
 
 ### Plot Three
 ```{r echo=FALSE, Plot_Three}
-ggplot(whiteWineData,aes(x = sulphates, y = fixed.acidity ,color= pH))+
-geom_point(size = 4, shape = 1, colour = "lightsteelblue")+ 
-  geom_jitter()+theme_bw()+ 
-  labs(x = "Sulphates(g / dm3)",
-  y = "Fixed Acidity (g / dm^3)", title = "Relationship between Fixed Acidity ,
-Sulphates and Quality")
+#Plot Three: Scatter plot for Alcohol , Residual sugar and Quality
+ggplot(whiteWineData,aes(x = alcohol, y = residual.sugar ,
+                         color= as.factor(quality)))+
+geom_point(alpha=0.5, size = 1, shape = 1)+ 
+geom_jitter()+labs(x = "Alcohol (% by Volume)",
+                   y = expression(Residual~Sugar~(g/dm^{3})))+theme_bw()+
+scale_color_brewer(type = "div", palette = "RdYlGn", name="Quality", 
+direction=1) +guides(color=guide_legend(override.aes = list(alpha = 1)))
 ```
 
 ### Description Three
-> From above plot we can confirm that when fixed.acidity value is more pH value 
-is less and vice versa and same relation can be seen in between Sulphates and pH
-> Which strengthens findings of individual Bivariate analysis with pH value
-
+ 
+* From above plot we can confirm that alcohol % also contributes to the quality.
+* Samples with alcohol % above 11 have higher levels of quality and vice versa
+* Majority samples have residual.sugar level below 10 
+* AS residual.sugar increased higher quality levels are decreased  which 
+suggests residual.sugar effects quality to some extent
+ 
 # Reflection
 
-> This is the tidiest dataset and it was easy to perform Univariate analysis.
-> Found trends between fixed acidity & ph , suphates & ph. 
-> Interesting find is majority samples have total.sulfur.dioxide above 100
-> For Bivariate Analysis I couldnt figure out main attributes and supporting 
+* This is the tidiest dataset and it was easy to perform Univariate analysis.
+* For Bivariate Analysis I couldnt figure out main attributes and supporting 
 attributes initially, resulting in some re-work.
-> After some research on white wine I was able to determine.Which suggests that 
-prior knowledge of dataset is required to make proper analysis.
-> Some of the main attributes of wine like age, tannins,types of grapes etc are 
-not mentioned in dataset which would have helped in understanding more about
+* After some research on white wine I was able to determine.Which suggests that 
+prior knowledge of dataset attributes is required to make a solid analysis.
+* Some of the important attributes of wine like age, tannins,types of grapes etc
+are not mentioned in dataset which would have helped in understanding more about
 quality.
+* Given this Data would help in understanding more about wine and finding other
+main attributes that contributes to quality.
 
 # References
-> * https://winefolly.com/review/wine-characteristics/
-> * https://winefolly.com/tutorial/wine-sweetness-chart/
-> *https://www.winespectator.com/drvinny/show/id/5035
+ * https://winefolly.com/review/wine-characteristics/
+ * https://winefolly.com/tutorial/wine-sweetness-chart/
+ * https://www.winespectator.com/drvinny/show/id/5035
